@@ -2,6 +2,7 @@ const User = require('../models/user');
 const argon2 = require('argon2');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const {sendOtp, verifyOtp} = require('../services/otpService');
 dotenv.config();
 const secret = process.env.TOKEN_SECRET;
 
@@ -58,6 +59,20 @@ const signIn = async(req, res) => {
     }
 }
 
+const sendOTP = async(req, res) =>{
+    const {email} = req.body;
+    if(!email) return res.json({message:"Email Required!"});
+    const response = await sendOtp(email);
+    res.json(response);
+}
+
+const verifyOTP = async(req, res) =>{
+    const {email, otp} = req.body;
+    if(!email || !otp) return res.json({message:"Please enter email and OTP"});
+    const response = await verifyOtp(email, otp);
+    res.json(response);
+}
+
 const logOut = async(req, res) =>{
     res.clearCookie('sessionId', {
         httpOnly:true,
@@ -84,4 +99,4 @@ const userInfo = async(req, res) =>{
     }
 }
 
-module.exports = {signUp, signIn, logOut, userInfo};
+module.exports = {signUp, signIn, logOut, userInfo, sendOTP, verifyOTP};
