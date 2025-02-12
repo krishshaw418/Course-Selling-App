@@ -17,8 +17,8 @@ const sendOtp = async(email) =>{
     }
 
     const otp = generateOtp();
-    await client.set(`otp:${email}`, otp, { EX: 300 });
-
+    await client.set(`otp:${email}`, otp, "EX", 300);
+    
     const msg = {
         to:email,
         from:process.env.EMAIL_SENDER,
