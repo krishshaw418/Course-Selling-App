@@ -1,6 +1,6 @@
 const sgMail = require('@sendgrid/mail');
 const crypto = require('crypto');
-const client = require('./RedisClient');
+const client = require('../config/RedisClient');
 const validator = require('validator');
 require('dotenv').config({path:'../../.env'});
 
@@ -38,7 +38,7 @@ const sendOtp = async(email) =>{
 
 const verifyOtp = async(email, otp)=>{
     const storedOtp = await client.get(`otp:${email}`);
-    if(!storedOtp) return {success:false, message:"OTP not found! or expired!"};
+    if(!storedOtp) return {success:false, message:"OTP expired! Please request for another."};
     if(storedOtp !== otp) return {sucess:false, message:"Invalid OTP!"};
 
     await client.del(`otp:${email}`);

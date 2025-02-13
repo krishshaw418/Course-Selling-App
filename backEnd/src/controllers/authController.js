@@ -1,5 +1,5 @@
 const {Queue} = require('bullmq');
-const client = require('../services/RedisClient');
+const client = require('../config/RedisClient');
 const {verifyOtp} = require('../services/otpService');
 
 const otpQueue = new Queue("otp-verification", {connection: client});

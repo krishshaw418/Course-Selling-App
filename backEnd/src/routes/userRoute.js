@@ -1,6 +1,6 @@
 const express = require('express');
 const {signUp, signIn, logOut, userInfo} = require('../controllers/userController');
-const {otpRequest, verifyRequest} = require('../controllers/serviceController');
+const {otpRequest, verifyRequest} = require('../controllers/authController');
 const { Auth } = require('../middlewares/auth');
 const router = express.Router();
 
