@@ -1,6 +1,6 @@
 const { Worker } = require("bullmq");
-const client = require("./RedisClient");
-const { sendOtp } = require("./otpService");
+const client = require("../config/RedisClient");
+const { sendOtp } = require("../services/otpService");
 
 const otpWorker = new Worker(
     "otp-verification",
