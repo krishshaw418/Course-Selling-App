@@ -1,8 +1,8 @@
-const User = require('../models/user');
-const Courses = require('../models/courses'); 
+const Admin = require('../models/admin');
+// const Courses = require('../models/courses');
 const argon2 = require('argon2');
+// const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
-
 dotenv.config();
 
 const signUp = async(req, res) => {
@@ -10,17 +10,17 @@ const signUp = async(req, res) => {
     if(!name || !email ||!password){
         return res.json({error:`All fields are required!`});
     }
-    const user = await User.findOne({email});
+    const user = await Admin.findOne({email});
     if(user){
         return res.json({error:`User already exist! Please Sign in.`});
     }
     try {
         const hashPassword = await argon2.hash(password);
-        const user = new User({
+        const user = new Admin({
             name,
             email,
             password: hashPassword,
-            purchasedCoursesId:[]
+            UploadedCourses:[]
         })
         await user.save();
         return res.status(200).json({message:`Sign up successful!`});
@@ -35,7 +35,7 @@ const signIn = async(req, res) => {
         return res.json({error:`Please fill in required fields!`});
     }
     try {
-        const user = await User.findOne({email});
+        const user = await Admin.findOne({email});
         if(!user){
             return res.json({error:`User does not exits! Please sign up.`});
         }
@@ -43,7 +43,8 @@ const signIn = async(req, res) => {
         if(!isMatch){
             return res.json({error:`Invalid Credentials!`});
         }
-        return res.json({message:`Please verify that its you via email verification.`});
+        
+        return res.json({message:`Please verify that its you via email verfication.`});
     } catch (error) {
         return res.json({error:`Internal Server Error!`});
     }
@@ -65,7 +66,7 @@ const userInfo = async(req, res) =>{
         return res.json({message:`Access Denied!`});
     }
     try {
-        const user = await User.findOne({_id:userId.id});
+        const user = await Admin.findOne({_id:userId.id});
         if(!user){
             return res.json({message:`Internal Server Error!`});
         }
@@ -75,26 +76,4 @@ const userInfo = async(req, res) =>{
     }
 }
 
-const purchaseCourse =  async(req, res) =>{
-    const {courseId} = req.params;
-    const {userId} = req.userId;
-    if(!courseId){
-        return res.json({message: "Course Id required!"});
-    }
-    if(!userId){
-        return res.json({message: "Please signIn first!"});
-    }
-    try {
-        const course = await Courses.findOne({courseId});
-        if(!course)
-            return res.json({sucess:false, message:"Course not Available!"});
-        const addCourse = await User.findByIdAndUpdate(userId.id, {$push: {purchasedCoursesId: courseId}});
-        if(!addCourse)
-            return res.json({sucess: false, message: "Error! Cannot buy course."});
-        res.json({sucess: true, message: "Purchase Sucessful!"});
-    } catch (error) {
-        return res.json({sucess: false, message: "Internal Server Error!"});
-    }
-}
-
-module.exports = {signUp, signIn, logOut, userInfo, purchaseCourse};
+module.exports = {signIn, signUp, logOut, userInfo};
