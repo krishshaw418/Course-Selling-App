@@ -1,7 +1,6 @@
 const Admin = require('../models/admin');
-// const Courses = require('../models/courses');
+const Courses = require('../models/courses');
 const argon2 = require('argon2');
-// const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -76,4 +75,44 @@ const userInfo = async(req, res) =>{
     }
 }
 
-module.exports = {signIn, signUp, logOut, userInfo};
+const uploadCourse = async(req, res) =>{
+    const userId = req.userId;
+    const {title, description, price, videoLink} = req.body;
+    if(!userId) return res.json({sucess: failed, message: "Access Denied!"});
+    if(!title || !description || !price) return res.json({sucess: false, message: "All fields are required!"});
+    try {
+        const dublicate = await Courses.findOne({title});
+        if(dublicate) return res.json({sucess: false, message: "Course already exist!"});
+        const course = new Courses({
+            title,
+            description,
+            price,
+            videoLink,
+            adminId:userId.id
+        });
+        await course.save();
+        await updateAdmindoc(userId.id, course._id);
+        res.json({sucess: true, message:"Course Uploaded Sucessully!"});
+    } catch (error) {
+        console.error("Error:", error);
+        res.json({ success: false, message: "Internal Server Error" });
+    }
+}
+
+const updateAdmindoc = async(userId, courseId) =>{
+    try {
+        const updatedAdmin = await Admin.findByIdAndUpdate(
+            userId,
+            { $push: { uploadedCourses: courseId } },
+            { new: true }
+        );
+
+        if (!updatedAdmin) {
+            console.error("Failed to update Admin data!");
+        }
+    } catch (error) {
+        console.error("Error updating admin document:", error);
+    }
+}
+
+module.exports = {signIn, signUp, logOut, userInfo, uploadCourse};

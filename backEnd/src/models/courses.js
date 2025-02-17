@@ -3,15 +3,22 @@ const mongoose = require('mongoose');
 const coursesSchema = new mongoose.Schema({
     title:{
         type: String,
-        require: true
+        require: true,
+        unique: true
     },
-    desciption:{
+    description:{
         type: String,
         require: false  
     },
     price:{
         type: Number,
         require: true
+    },
+    videoLink:{
+        type: String
+    },
+    adminId:{
+        type: String
     }
 })
 
