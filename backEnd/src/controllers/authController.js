@@ -3,6 +3,7 @@ const client = require('../config/RedisClient');
 const {verifyOtp} = require('../services/otpService');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const Admin = require('../models/admin');
 require('dotenv').config();
 
 const secret = process.env.TOKEN_SECRET;
@@ -33,4 +34,21 @@ const verifyRequest = async(req, res) =>{
     res.json(response);
 }
 
-module.exports = {otpRequest, verifyRequest};
+const verifyAdminRequest = async(req, res) =>{
+    const {email, otp} = req.body;
+    if(!email || !otp) return res.json({sucess: false, message: "Email required & OTP required!"});
+    const user = await Admin.findOne({email});
+    const response = await verifyOtp(email, otp);
+    if(response.sucess === false) return res.json(response);
+    const token = jwt.sign({id:user._id}, secret, {expiresIn: '1h'});
+            res.cookie('sessionId', token, {
+                httpOnly:true,
+                secure:false,
+                sameSite:"strict",
+                maxAge:60 * 60 * 1000,
+                path:'/'
+            })
+    res.json(response);
+}
+
+module.exports = {otpRequest, verifyRequest, verifyAdminRequest};
