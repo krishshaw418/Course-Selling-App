@@ -15,7 +15,7 @@ dbconnection();
 app.use(express.json());
 
 app.use(`/api/user`, userRoute);
-app.use(`/api/admin`, adminRoutes)
+app.use(`/api/admin`, adminRoutes);
 
 app.listen(port,()=>{
     console.log(`Listening...`);
